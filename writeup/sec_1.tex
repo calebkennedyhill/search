@@ -1,0 +1,55 @@
+\section{Basics}
+
+Let $G = (V,E)$ be a graph with $V=\{1,\dots,n\}$.
+Define $\unit$ to be the $n\times1$ matrix (i.e., column vector) with $1$ in every slot.
+Let $A$ be the adjacency matrix of $G$.
+
+\begin{proposition}
+    $D_{i,i}$ is the number of neighbors of $i$. 
+\end{proposition}
+\begin{proof}
+    
+\end{proof}
+
+\begin{definition}
+    $L\coloneq D-A$
+\end{definition}
+
+\begin{proposition}
+    $L_{i,j} = \begin{cases}
+        D_{i,i} & i=j \\
+        -1 & \\
+        0 & \\
+    \end{cases}$
+\end{proposition}
+\begin{proof}
+    
+\end{proof}
+
+
+
+
+
+\section{Search}
+
+There might be a name for this somewhere.
+
+\begin{definition}
+    Call a graph {\bf local} if its adjacency matrix is block diagonal.
+
+    \red{This is the WRONG definition.}
+\end{definition}
+
+It seems like a local graph would lend itself more to parallel BFS.
+
+\begin{proposition}
+    Suppose a real symmetric matrix $B$ is block-diagonal 
+    with blocks $B_1,\dots,B_N$.
+    Then the $B_i$ share a positive eigenvalue.
+    Let $\lambda$ be such a shared eigenvalue, and suppose $v_1,\dots,v_N$ are the
+    corresponding eigenvectors.
+    Then $(v_1^T, \dots, v_N^T)^T$ is an eigenvector for $B$ with eigenvalue $\lambda$.
+\end{proposition}
+\begin{proof}
+    
+\end{proof}
