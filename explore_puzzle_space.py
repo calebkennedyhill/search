@@ -22,10 +22,10 @@ solved_state = util.puzzle_state(HOME)
 # Plan: init (side!) x (side!) matrix M
 # For node n generated from parent p,
 # mark M[lehmer.encode(n),lehmer.encode(p)]=1 and M[lehmer.encode(p),lehmer.encode(n)]=1
-
+# ...
 # This will probably overdo it, but it's a start.
 
-AA = np.full([ lehmer.factorial(SIDE**2),lehmer.factorial(SIDE**2) ],fill_value=0, dtype=np.int8)
+# start with writing down the adj matrix for 100 nodes near the solved state
 
 
 def explore_and_record():
@@ -35,8 +35,10 @@ def explore_and_record():
     num_states_explored = 1
     state_data = []
 
+    nbr_pairs = set()
+
     print('starting exploration...')
-    while len(frontier) != 0:
+    while len(frontier) != 0 and num_states_explored < 100:
         here = frontier[0]
         frontier = np.delete(frontier,0)
 
@@ -44,38 +46,34 @@ def explore_and_record():
 
         nbrs = util.moves(here)
         for n in nbrs:
-            AA[lehmer.encode(here.config.flatten()),lehmer.encode(n.config.flatten())]=1
-            AA[lehmer.encode(n.config.flatten()),lehmer.encode(here.config.flatten())]=1
             if n not in discovered:
                 discovered.add(n)
                 frontier = np.append(frontier,n)
+                nbr_pairs.add( (int(lehmer.encode(here.config.flatten())), int(lehmer.encode(n.config.flatten()))) )
 
-        state_data.append([
-            num_states_explored, 
-            la.norm( HOME - flattened_here ,0), 
-            la.norm( HOME - flattened_here ,1), 
-            round(la.norm( HOME - flattened_here ,2),3), 
-            util.manhattan_total(here.config), 
-            util.inversion_dist(here.config),
-            ''.join(np.array2string(flattened_here,edgeitems=2)[1:-1].split()),
-            lehmer.encode(flattened_here)
-            ])
+        # state_data.append([
+        #     num_states_explored, 
+        #     la.norm( HOME - flattened_here ,0), 
+        #     la.norm( HOME - flattened_here ,1), 
+        #     round(la.norm( HOME - flattened_here ,2),3), 
+        #     util.manhattan_total(here.config), 
+        #     util.inversion_dist(here.config),
+        #     ''.join(np.array2string(flattened_here,edgeitems=2)[1:-1].split()),
+        #     lehmer.encode(flattened_here)
+        #     ])
 
         num_states_explored = num_states_explored + 1
-        if num_states_explored%10000 == 0:
+        if num_states_explored%100 == 0:
             print(num_states_explored,'states explored.')
 
-    df = pd.DataFrame(columns=['num_explored', 'zero_norm', 'one_norm', 'two_norm', 'taxi_norm', 'inv_norm', 'state_str', 'lehmer_code'],
-                    data=state_data)
-    df.to_csv(path_or_buf='state_data_'+str(SIDE)+'.csv', index=False)
-    print('Done exploring, data written.\n')
+    # df = pd.DataFrame(columns=['num_explored', 'zero_norm', 'one_norm', 'two_norm', 'taxi_norm', 'inv_norm', 'state_str', 'lehmer_code'],
+    #                 data=state_data)
+    # df.to_csv(path_or_buf='state_data_'+str(SIDE)+'.csv', index=False)
+    # print('Done exploring, data written.\n')
 
-explore_and_record()
+    return(nbr_pairs)
 
+nbr_pairs = explore_and_record()
+coded_nodes = [elt for tpl in nbr_pairs for elt in tpl]
 
-unit = np.full([lehmer.factorial(SIDE**2),1], fill_value=1)
-DD = np.diag( AA.dot(unit) )
-print(AA)
-
-# eigs = la.eigh(AA)
-# print(np.round( eigs[0], decimals=4 ))
+print(set(nbr_pairs))

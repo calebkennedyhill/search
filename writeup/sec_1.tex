@@ -18,8 +18,8 @@ Let $A$ be the adjacency matrix of $G$.
 \begin{proposition}
     $L_{i,j} = \begin{cases}
         D_{i,i} & i=j \\
-        -1 & \\
-        0 & \\
+        -1 & (i,j)\in E \\
+        0 & \text{else} \\
     \end{cases}$
 \end{proposition}
 \begin{proof}
@@ -32,24 +32,41 @@ Let $A$ be the adjacency matrix of $G$.
 
 \section{Search}
 
-There might be a name for this somewhere.
+I have at least two questions:
+\begin{enumerate}
+    \item How does the fact that nodes have 2, 3, or 4 neighbors manifest in the adjacency matrix?
+    \item Can we exploit this structure to parallelize exploration?
+\end{enumerate}
 
-\begin{definition}
-    Call a graph {\bf local} if its adjacency matrix is block diagonal.
 
-    \red{This is the WRONG definition.}
-\end{definition}
+\subsection{Structure of the graph}
 
-It seems like a local graph would lend itself more to parallel BFS.
+The first goal here is to write down the adjacency matrix for the 100 
+or so nodes surrounding the $3\times3$ solved state. 
+This is to start addressing question (1) above.
+See \verb|explore_puzzle_space.py| for progress.
 
-\begin{proposition}
-    Suppose a real symmetric matrix $B$ is block-diagonal 
-    with blocks $B_1,\dots,B_N$.
-    Then the $B_i$ share a positive eigenvalue.
-    Let $\lambda$ be such a shared eigenvalue, and suppose $v_1,\dots,v_N$ are the
-    corresponding eigenvectors.
-    Then $(v_1^T, \dots, v_N^T)^T$ is an eigenvector for $B$ with eigenvalue $\lambda$.
-\end{proposition}
-\begin{proof}
-    
-\end{proof}
+We'll be considering, e.g., a $3\times3$ puzzle configuration as a permutation of the 
+set 
+\[
+    \{1,2,3,4,5,6,7,8,0\}.
+\]  
+There are some particularities about where 0 goes in the null/solved permutation,
+but that shouldn't be too important now.
+Permutations will be denoted by $\sigma$.
+
+Let $\sigma_0,\dots,\sigma_{99}$ be the configurations of the 100 nodes surrounding the solved state.
+Let $\lambda(\sigma)$ denote the \hyperlink{https://en.wikipedia.org/wiki/Lehmer_code}{Lehmer encoding}
+of the permutation $\sigma$.
+So $\lambda(\sigma) \in \{ 0,\dots,99\}$.
+Let $i_0,\dots,i_{99}$ be such that $\lambda(\sigma_{i_0}) < \cdots < \lambda(\sigma_{i_{99}})$,
+and define $f$ by $f(\lambda(\sigma_{i_k})) \coloneq k$.
+
+Now, whenever a new node $n$ is discovered from parent $p$, keep track of number $\lambda(n.\sigma)$
+as well as the pair 
+\[
+    (\lambda(n.\sigma), \lambda(p.\sigma)).
+\]
+
+The size of the set $\{ n.\sigma \}$ will tell us how big to make the adjacency matrix,
+and the pairs $(\lambda(n.\sigma), \lambda(p.\sigma))$ will tell us which entries are nonzero.
