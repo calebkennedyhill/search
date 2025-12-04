@@ -24,16 +24,6 @@ HOME = (np.arange(SIDE**2)+1)%(SIDE**2)
 solved_state = util.puzzle_state(HOME)
 
 
-
-# Plan: init (side!) x (side!) matrix M
-# For node n generated from parent p,
-# mark M[lehmer.encode(n),lehmer.encode(p)]=1 and M[lehmer.encode(p),lehmer.encode(n)]=1
-# ...
-# This will probably overdo it, but it's a start.
-
-# start with writing down the adj matrix for 100 nodes near the solved state
-
-
 def explore_and_record():
     frontier = [solved_state]
     discovered = set()
@@ -44,7 +34,7 @@ def explore_and_record():
     nbr_pairs = set()
 
     print('starting exploration...')
-    while len(frontier) != 0 and num_states_explored < 1000:
+    while len(frontier) != 0 and num_states_explored < 1500:
         here = frontier[0]
         # print(here.config)
         frontier = np.delete(frontier,0)
@@ -74,9 +64,7 @@ def explore_and_record():
         if num_states_explored%100 == 0:
             print(num_states_explored,'states explored.')
 
-    # df = pd.DataFrame(columns=['num_explored', 'zero_norm', 'one_norm', 'two_norm', 'taxi_norm', 'inv_norm', 'state_str', 'lehmer_code'],
-    #                 data=state_data)
-    # df.to_csv(path_or_buf='state_data_'+str(SIDE)+'.csv', index=False)
+    
     print('Done exploring.\n')
 
     return(nbr_pairs)
@@ -94,13 +82,7 @@ for n1 in range(num_nodes):
             AA[n2,n1] = 1
 
 embedding = spectral_embedding(AA, n_components=3, random_state=42)
-# emb_df = pd.DataFrame(
-#     {
-#     'x': [pt[0] for pt in embedding]/la.norm([pt[0] for pt in embedding]), 
-#     'y': [pt[1] for pt in embedding]/la.norm([pt[1] for pt in embedding]),
-#     'z': [pt[2] for pt in embedding]/la.norm([pt[2] for pt in embedding])
-#     }
-#     )
+
 
 point_pairs = list([])
 for i in range(len(embedding)):
