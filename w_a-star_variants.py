@@ -125,12 +125,12 @@ print('Starting', NUM_RUNS, 'runs with puzzle size', SIDE)
 for i in range(NUM_RUNS):
     initial_state = random_state()
     print('---------------- Beginning problem number:', i,'----------------\n')
-    # fresh_copy = initial_state.copy()
-    # find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=0.0, w2=1.0, upper_limit=2000)       # pure heuristic
-    # fresh_copy = initial_state.copy()
-    # find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=1.0, upper_limit=2000)       # usual A*
     fresh_copy = initial_state.copy()
-    find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=20, upper_limit=1500)       # weighted A*
+    find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=0.0, w2=1.0, upper_limit=2000)       # pure heuristic
+    fresh_copy = initial_state.copy()
+    find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=1.0, upper_limit=2000)       # usual A*
+    # fresh_copy = initial_state.copy()
+    # find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=20, upper_limit=1500)       # weighted A*
     # fresh_copy = initial_state.copy()    
     # find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=1.25, upper_limit=2000)      
     # fresh_copy = initial_state.copy()
