@@ -9,7 +9,8 @@ import random
 import sys
 
 SIDE = int(sys.argv[1])
-NUM_RUNS = int(sys.argv[2])
+TIMEOUT = int(sys.argv[2])
+NUM_RUNS = int(sys.argv[3])
 
 HOME = (np.arange(SIDE**2)+1)%(SIDE**2)
 
@@ -67,7 +68,7 @@ def find_sol_and_write_metrics(init_state: util.puzzle_state, path: str, upper_l
 
         num_states_explored = num_states_explored+1
         if num_states_explored%100==0:
-            print(num_states_explored, 'states expolored.')
+            print(num_states_explored, 'states explored.')
         if num_states_explored >= upper_limit:
             print('experiment timeout.\n')
             end_time = datetime.datetime.now()
@@ -115,7 +116,9 @@ def find_sol_and_write_metrics(init_state: util.puzzle_state, path: str, upper_l
                'runtime': end_time-start_time
                }
     df = pd.DataFrame([metrics])
-    df.to_csv(path+'_'+str(SIDE)+'.csv', index=False, mode='a', header=False)
+    df.to_csv(path+'_'+str(SIDE)+'.csv', index=False, mode='a', header=True)
+
+    return(get_path(end))
 
 metrics_path = '/Users/calebhill/Documents/misc_coding/search/variants'
 
@@ -126,15 +129,15 @@ for i in range(NUM_RUNS):
     initial_state = random_state()
     print('---------------- Beginning problem number:', i,'----------------\n')
     fresh_copy = initial_state.copy()
-    find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=0.0, w2=1.0, upper_limit=2000)       # pure heuristic
+    find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=0.0, w2=1.0, upper_limit=TIMEOUT)       # pure heuristic
     fresh_copy = initial_state.copy()
-    find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=1.0, upper_limit=2000)       # usual A*
-    # fresh_copy = initial_state.copy()
-    # find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=20, upper_limit=1500)       # weighted A*
-    # fresh_copy = initial_state.copy()    
-    # find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=1.25, upper_limit=2000)      
-    # fresh_copy = initial_state.copy()
-    # find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=1.5, upper_limit=2000)       
+    find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=1.0, upper_limit=TIMEOUT)       # usual A*
+    fresh_copy = initial_state.copy()
+    find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=2.0, upper_limit=TIMEOUT)       # weighted A*
+    fresh_copy = initial_state.copy()    
+    find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=1.25, upper_limit=TIMEOUT)       # weighted A*      
+    fresh_copy = initial_state.copy()
+    find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=1.5, upper_limit=TIMEOUT)       # weighted A*       
 
 
 print('---------------- Experiment finished. ----------------\n\n')
