@@ -16,6 +16,7 @@ import puzzle_utilities as util
 import lehmer
 
 SIDE = int(sys.argv[1])
+LIMIT = int(sys.argv[2])
 HOME = (np.arange(SIDE**2)+1)%(SIDE**2) # change for 2x3
 
 solved_state = util.puzzle_state(HOME)
@@ -31,8 +32,9 @@ def explore_and_record():
     nbr_pairs = set()
 
     print('starting exploration...')
-    while len(frontier) != 0 and num_states_explored < 1000:
+    while len(frontier) != 0 and num_states_explored < LIMIT:
         here = frontier[0]
+        # print(here.config)
         frontier = np.delete(frontier,0)
 
         flattened_here = here.config.reshape(SIDE**2,) # change for 2x3
