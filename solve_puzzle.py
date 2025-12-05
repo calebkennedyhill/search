@@ -395,5 +395,5 @@ initial_state = random_state()
 end, sol_len, solution = find_sol(initial_state, upper_limit=TIMEOUT)
 print('-------- Finished. --------\n\n')
 
-anim.run_animation(solution)
+anim.run_viewer(solution)
 
