@@ -7,22 +7,10 @@ import time
 import sys
 import os
 
-greedy_0 = 'greedy 0-norm'
-a_star_0 = 'A-star 0-norm'
-
-taxi_tot = 'taxicab total'
-a_star_t = 'A-star,  taxi'
-
-heuristics = [greedy_0, 
-              taxi_tot, 
-              a_star_0,
-              a_star_t]
+import puzzle_utilities as util
+import animate_solution as anim
 
 SIDE = int(sys.argv[1])
-NUM_RUNS = int(sys.argv[2])
-A_STAR_FACTOR = float(sys.argv[3])
-
-
 HOME = (np.arange(SIDE**2)+1)%(SIDE**2)
 
 # enter as a vector. reshape and hold as a matrix
@@ -338,20 +326,11 @@ def manhattan_total(arr):
                 sum = sum + np.abs( int((val-1)/SIDE) - i) + np.abs( ((val-1)%SIDE) - j)
     return sum
 
-def heur(s: puzzle_state, search_type: str):
+def heur(s: util.puzzle_state):
     flattened = s.config.copy()
     flattened = flattened.reshape(SIDE**2,)
 
-    if search_type == greedy_0:
-        return la.norm( HOME - flattened, 0 )
-    elif search_type == a_star_0:
-        return s.d + A_STAR_FACTOR*la.norm( HOME - flattened, 0 )
-    elif search_type == taxi_tot:
-        return manhattan_total(s.config)
-    elif search_type == a_star_t:
-        return s.d + A_STAR_FACTOR*manhattan_total(s.config)
-    else:
-        return 1
+    return s.d + (util.manhattan_total(s.config) + util.inversion_dist(s.config) )
 
 def get_path(end: puzzle_state):
     bwds = [end]
@@ -363,20 +342,14 @@ def get_path(end: puzzle_state):
     n = len(bwds)
     return np.flip(bwds)
 
-def find_sol(init_state: puzzle_state, path: str, search_type: str, upper_limit: int):
+def find_sol(init_state: puzzle_state,upper_limit: int):
     qew = [init_state]
     found_states = []
     num_states_explored = 1
     sol_found = False
     flat_init = init_state.config.copy()
     flat_init = flat_init.reshape(SIDE**2,)
-    if search_type==a_star_0 or search_type==a_star_t:
-        weight = A_STAR_FACTOR
-    else:
-        weight = -1
 
-    print('searching...\t\tsearch algorithm:', search_type)
-    start_time = datetime.datetime.now()
     while sol_found is False:
         # pop qew
         here = qew[0]
@@ -389,30 +362,14 @@ def find_sol(init_state: puzzle_state, path: str, search_type: str, upper_limit:
             if not is_found(found_states, n):
                 qew = np.append(qew, n)
 
-        qew = sorted(qew, key=lambda a: heur(a,search_type))
+        qew = sorted(qew, key=heur)
 
         num_states_explored = num_states_explored+1
         if num_states_explored%1000==0:
-            print(num_states_explored, 'states expolored.')
+            print(num_states_explored, 'states explored.')
         if num_states_explored == upper_limit:
             print('experiment timeout.\n')
-            end_time = datetime.datetime.now()
-            
-            metrics = {'experiment_date': start_time.strftime('%Y/%m/%d'),
-               'experiment_start_time': start_time.strftime('%H:%M:%S'),
-               'algorihm': search_type,
-               'a_star_factor': weight,
-               'size': SIDE,
-               'initial_state': ''.join(np.array2string(flat_init,edgeitems=2)[1:-1].split()),
-               'initial_0_norm': int(la.norm( HOME - flat_init, 0 )),
-               'initial_taxi_norm': manhattan_total(init_state.config),
-               'num_states_explored': num_states_explored,
-               'path_length': -1,
-               'runtime': end_time-start_time
-               }
-            df = pd.DataFrame([metrics])
-            df.to_csv(path, index=False, mode='a', header=False)
-            return 1
+            return [None, num_states_explored, None]
 
         flattened = here.config.copy()
         flattened = flattened.reshape(SIDE**2,)
@@ -426,39 +383,16 @@ def find_sol(init_state: puzzle_state, path: str, search_type: str, upper_limit:
 
     p = get_path(end)
     print('Solution length:', len(p),'\n')
-
-    metrics = {'experiment_date': start_time.strftime('%Y/%m/%d'),
-               'experiment_start_time': start_time.strftime('%H:%M:%S'),
-               'algorihm': search_type,
-               'a_star_factor': weight,
-               'size': SIDE,
-               'initial_state': ''.join(np.array2string(flat_init,edgeitems=2)[1:-1].split()),
-               'initial_0_norm': int(la.norm( HOME - flat_init, 0 )),
-               'initial_taxi_norm': manhattan_total(init_state.config),
-               'num_states_explored': num_states_explored,
-               'path_length': len(p),
-               'runtime': end_time-start_time
-               }
-    df = pd.DataFrame([metrics])
-    df.to_csv(path, index=False, mode='a', header=False)
     
-    output = [end, num_states_explored, p, metrics]
+    output = [end, num_states_explored, p]
     
     return output
 
 
-path = '/Users/calebhill/Documents/misc_coding/search/experimental_outputs.csv'
 
-# start_from = puzzle_state(np.array([4,6,5,8,7,1,0,3,2]))
-# find_sol(start_from, path, search_type=a_star_t, upper_limit=10000)
+initial_state = random_state()
+solution = find_sol(initial_state, upper_limit=10000)
+print('-------- Finished. --------\n\n')
 
-print('**************************************************')
-print('Starting', NUM_RUNS, 'runs with puzzle size', SIDE, 'and A-star weight of', A_STAR_FACTOR)
-for i in range(NUM_RUNS):
-    initial_state = random_state()
-    print('-------- Beginning problem number:', i,'--------\n')
-    for st in heuristics:
-        fresh_copy = initial_state.copy()
-        find_sol(fresh_copy, path, search_type=st, upper_limit=10000)
-print('-------- Experiment finished. --------\n\n')
+anim.run_animation(solution)
 
