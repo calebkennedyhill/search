@@ -11,6 +11,7 @@ import puzzle_utilities as util
 import animate_solution as anim
 
 SIDE = int(sys.argv[1])
+TIMEOUT = int(sys.argv[2])
 HOME = (np.arange(SIDE**2)+1)%(SIDE**2)
 
 # enter as a vector. reshape and hold as a matrix
@@ -391,7 +392,7 @@ def find_sol(init_state: puzzle_state,upper_limit: int):
 
 
 initial_state = random_state()
-solution = find_sol(initial_state, upper_limit=10000)
+end, sol_len, solution = find_sol(initial_state, upper_limit=TIMEOUT)
 print('-------- Finished. --------\n\n')
 
 anim.run_animation(solution)
