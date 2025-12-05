@@ -14,28 +14,9 @@ SIDE = int(sys.argv[1])
 TIMEOUT = int(sys.argv[2])
 HOME = (np.arange(SIDE**2)+1)%(SIDE**2)
 
-# enter as a vector. reshape and hold as a matrix
-class puzzle_state:
-    def __init__(self, config):
-        conf1 = config
-        self.config = conf1.reshape(SIDE,SIDE)
-        self.parent = None
-        self.d = 0
-
-    def __str__(self):
-        pass
-
-    def copy(self):
-        state_vec = self.config.copy()
-        state_vec = state_vec.reshape(SIDE**2,)
-        new = puzzle_state(state_vec)
-        new.parent = self.parent
-        return new
-
-
 
 # find the neighbors of a puzzle_state
-def moves(par_state: puzzle_state):                         
+def moves(par_state: util.puzzle_state):                         
     a = par_state.config
     i = np.argwhere(a == 0)[0][0]
     j = np.argwhere(a == 0)[0][1]
@@ -234,89 +215,18 @@ def moves(par_state: puzzle_state):
         return [u,d,l]
 
 def random_state():
-    here = puzzle_state(HOME)
+    here = util.puzzle_state(HOME)
     for i in range(100):
         here = random.choice(moves(here))
     here.parent = None
     return here
 
-def is_found(found_list: list, to_check: puzzle_state):
+def is_found(found_list: list, to_check: util.puzzle_state):
     for s in found_list:
         if np.array_equal(s.config, to_check.config):
             return True
     
     return False
-
-# chatGPT output for visualizing:
-import tkinter as tk
-import time
-
-TILE_SIZE = 80  # pixels
-ANIM_STEPS = 10  # frames for sliding
-ANIM_DELAY = 0.75  # seconds per frame
-
-def draw_puzzle(canvas, state: puzzle_state, tiles):
-    """Draw the puzzle tiles according to arr."""
-    arr = state.config
-    canvas.delete("all")
-    rows, cols = arr.shape
-    for r in range(rows):
-        for c in range(cols):
-            val = arr[r, c]
-            if val != 0:
-                x1, y1 = c * TILE_SIZE, r * TILE_SIZE
-                x2, y2 = x1 + TILE_SIZE, y1 + TILE_SIZE
-                canvas.create_rectangle(x1, y1, x2, y2, fill="gold", outline="black", width=2)
-                canvas.create_text((x1+x2)//2, (y1+y2)//2, text=str(val), font=("Arial", 24, "bold"))
-    canvas.update()
-
-def animate_move(canvas, state: puzzle_state, start_pos, end_pos):
-    """Animate a tile sliding from start_pos to end_pos."""
-    arr = state.config
-
-    sr, sc = start_pos
-    er, ec = end_pos
-    val = arr[sr, sc]
-    dx = (ec - sc) * TILE_SIZE / ANIM_STEPS
-    dy = (er - sr) * TILE_SIZE / ANIM_STEPS
-    
-    # Create the moving tile
-    x1, y1 = sc * TILE_SIZE, sr * TILE_SIZE
-    x2, y2 = x1 + TILE_SIZE, y1 + TILE_SIZE
-    tile = canvas.create_rectangle(x1, y1, x2, y2, fill="gold", outline="black", width=2)
-    text = canvas.create_text((x1+x2)//2, (y1+y2)//2, text=str(val), font=("Arial", 24, "bold"))
-    
-    for _ in range(ANIM_STEPS):
-        canvas.move(tile, dx, dy)
-        canvas.move(text, dx, dy)
-        canvas.update()
-        time.sleep(ANIM_DELAY)
-
-def run_animation(states):
-    rows, cols = states[0].config.shape
-    root = tk.Tk()
-    root.title("15 Puzzle Animation")
-    canvas = tk.Canvas(root, width=cols*TILE_SIZE, height=rows*TILE_SIZE, bg="white")
-    canvas.pack()
-
-    # Draw the first state
-    draw_puzzle(canvas, states[0], TILE_SIZE)
-    time.sleep(ANIM_DELAY)
-
-    # Animate transitions
-    for old, new in zip(states, states[1:]):
-        # Find the tile that moved
-        diff = np.argwhere(old != new)
-        if len(diff) == 2:
-            moved_tile_pos = tuple(diff[0]) if old[diff[0][0], diff[0][1]] != 0 else tuple(diff[1])
-            empty_pos = tuple(diff[1]) if moved_tile_pos == tuple(diff[0]) else tuple(diff[0])
-            animate_move(canvas, old, moved_tile_pos, empty_pos)
-        draw_puzzle(canvas, new, TILE_SIZE)
-        time.sleep(ANIM_DELAY)
-
-    root.mainloop()
-
-# chatGPT output end
 
 def manhattan_total(arr):
     sum = 0
@@ -333,7 +243,7 @@ def heur(s: util.puzzle_state):
 
     return s.d + (util.manhattan_total(s.config) + util.inversion_dist(s.config) )
 
-def get_path(end: puzzle_state):
+def get_path(end: util.puzzle_state):
     bwds = [end]
     here = end.copy()
 
@@ -343,7 +253,7 @@ def get_path(end: puzzle_state):
     n = len(bwds)
     return np.flip(bwds)
 
-def find_sol(init_state: puzzle_state,upper_limit: int):
+def find_sol(init_state: util.puzzle_state,upper_limit: int):
     qew = [init_state]
     found_states = []
     num_states_explored = 1
@@ -369,8 +279,8 @@ def find_sol(init_state: puzzle_state,upper_limit: int):
         if num_states_explored%1000==0:
             print(num_states_explored, 'states explored.')
         if num_states_explored == upper_limit:
-            print('experiment timeout.\n')
-            return [None, num_states_explored, None]
+            print('--- experiment timeout. ---\n')
+            return [sol_found, None, num_states_explored, None]
 
         flattened = here.config.copy()
         flattened = flattened.reshape(SIDE**2,)
@@ -380,20 +290,20 @@ def find_sol(init_state: puzzle_state,upper_limit: int):
             sol_found = True
             end = here
         
-    print('Solution found after', num_states_explored, 'states explored.')
+    print('--- Solution found after', num_states_explored, 'states explored. ---')
 
     p = get_path(end)
     print('Solution length:', len(p),'\n')
     
-    output = [end, num_states_explored, p]
+    output = [sol_found, end, num_states_explored, p]
     
     return output
 
 
 
 initial_state = random_state()
-end, sol_len, solution = find_sol(initial_state, upper_limit=TIMEOUT)
-print('-------- Finished. --------\n\n')
+sol_found, end, sol_len, solution = find_sol(initial_state, upper_limit=TIMEOUT)
 
-anim.run_viewer(solution)
+if sol_found:
+    anim.run_viewer(solution)
 
