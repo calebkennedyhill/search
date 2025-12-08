@@ -1,3 +1,7 @@
+# Set up environment
+Make sure using a [virtual environment](https://docs.python.org/3.12/library/venv.html)
+sudo apt-get install python3-tk 
+
 # Graph search fun: 15-puzzle.
 
 I started with greedy best-first heuristic search. During this first phase I explored a few different heuristics, beginning with the 0-norm (number of misplaced tiles) and 1-norm. These are _bad_ heuristics. Eventually I got my hands on the taxicab norm and the inversion norm, then summed them. That seems to be much better. 

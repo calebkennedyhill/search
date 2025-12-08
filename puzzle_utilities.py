@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 # enter as a vector. reshape and hold as a matrix
 class puzzle_state:
@@ -260,3 +261,28 @@ def horz_inv(arr):
 
 def inversion_dist(arr):
     return horz_inv(arr) + horz_inv(arr.transpose())
+
+def init_random_state(home):
+    """
+    Initializes a random puzzle state from a given home state.
+
+    Generates an initial state by performing a series of random moves on the provided
+    home puzzle state and returns the newly generated state. The function ensures
+    that the generated state has no parent and resets the depth value.
+
+    Typically home is the solution of the puzzle. It does not have to be.
+
+    Parameters:
+    home: puzzle_state
+        The initial home state of the puzzle to start from.
+
+    Returns:
+    puzzle_state
+        A randomly initialized puzzle state derived from the home state.
+    """
+    here = puzzle_state(home)
+    for _ in range(100):
+        here = random.choice(moves(here))
+    here.parent = None
+    here.d = 0
+    return here
