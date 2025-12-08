@@ -1,6 +1,7 @@
 # Custom
 .idea/
 local_old_files/
+*.csv
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
