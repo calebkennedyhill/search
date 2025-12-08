@@ -63,6 +63,7 @@ def find_sol_and_write_metrics(init_state: util.puzzle_state, path: str, upper_l
                 found_states.add(n)
                 qew = np.append(qew, n)
 
+        # Comment out this line is just BFS,
         qew = sorted(qew, key=lambda a: heur(a, w1=w1, w2=w2))
 
         num_states_explored = num_states_explored+1
@@ -117,20 +118,23 @@ def find_sol_and_write_metrics(init_state: util.puzzle_state, path: str, upper_l
     df = pd.DataFrame([metrics])
     df.to_csv(path+'_'+str(SIDE)+'.csv', index=False, mode='a', header=False)
 
-metrics_path = '/Users/calebhill/Documents/misc_coding/search/variants'
+# metrics_path = '/Users/calebhill/Documents/misc_coding/search/variants'
+metrics_path = './variants'
 
 
 print('\n***********************************************************************************************************************')
 print('Starting', NUM_RUNS, 'runs with puzzle size', SIDE)
 for i in range(NUM_RUNS):
     initial_state = random_state()
+
+
     print('---------------- Beginning problem number:', i,'----------------\n')
-    # fresh_copy = initial_state.copy()
-    # find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=0.0, w2=1.0, upper_limit=2000)       # pure heuristic
-    # fresh_copy = initial_state.copy()
-    # find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=1.0, upper_limit=2000)       # usual A*
     fresh_copy = initial_state.copy()
-    find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=20, upper_limit=1500)       # weighted A*
+    find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=0.0, w2=1.0, upper_limit=2000)       # pure heuristic
+    fresh_copy = initial_state.copy()
+    find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=1.0, upper_limit=2000)       # usual A*
+    # fresh_copy = initial_state.copy()
+    # find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=20, upper_limit=1500)       # weighted A*
     # fresh_copy = initial_state.copy()    
     # find_sol_and_write_metrics(fresh_copy, path=metrics_path, w1=1.0, w2=1.25, upper_limit=2000)      
     # fresh_copy = initial_state.copy()
