@@ -12,26 +12,14 @@ import sys
 
 from sklearn.manifold import spectral_embedding
 
-# from plotnine import ggplot, aes, geom_point, geom_segment
-# from plotnine3d import ggplot_3d
-
 import puzzle_utilities as util
 import lehmer
 
 SIDE = int(sys.argv[1])
-HOME = (np.arange(SIDE**2)+1)%(SIDE**2)
+LIMIT = int(sys.argv[2])
+HOME = (np.arange(SIDE**2)+1)%(SIDE**2) # change for 2x3
 
 solved_state = util.puzzle_state(HOME)
-
-
-
-# Plan: init (side!) x (side!) matrix M
-# For node n generated from parent p,
-# mark M[lehmer.encode(n),lehmer.encode(p)]=1 and M[lehmer.encode(p),lehmer.encode(n)]=1
-# ...
-# This will probably overdo it, but it's a start.
-
-# start with writing down the adj matrix for 100 nodes near the solved state
 
 
 def explore_and_record():
@@ -44,19 +32,19 @@ def explore_and_record():
     nbr_pairs = set()
 
     print('starting exploration...')
-    while len(frontier) != 0 and num_states_explored < 1000:
+    while len(frontier) != 0 and num_states_explored < LIMIT:
         here = frontier[0]
         # print(here.config)
         frontier = np.delete(frontier,0)
 
-        flattened_here = here.config.reshape(SIDE**2,)
+        flattened_here = here.config.reshape(SIDE**2,) # change for 2x3
 
         nbrs = util.moves(here)
         for n in nbrs:
             nbr_pairs.add( (int(lehmer.encode(here.config.flatten())), int(lehmer.encode(n.config.flatten()))) )
             if n not in discovered:
                 discovered.add(n)
-                frontier = np.append(frontier,n)
+                frontier = np.append(frontier, n)
                 
 
         # state_data.append([
@@ -74,9 +62,7 @@ def explore_and_record():
         if num_states_explored%100 == 0:
             print(num_states_explored,'states explored.')
 
-    # df = pd.DataFrame(columns=['num_explored', 'zero_norm', 'one_norm', 'two_norm', 'taxi_norm', 'inv_norm', 'state_str', 'lehmer_code'],
-    #                 data=state_data)
-    # df.to_csv(path_or_buf='state_data_'+str(SIDE)+'.csv', index=False)
+
     print('Done exploring.\n')
 
     return(nbr_pairs)
@@ -85,7 +71,7 @@ coded_nbr_pairs = explore_and_record()
 coded_nodes = list(set([elt for tpl in coded_nbr_pairs for elt in tpl]))
 num_nodes = len(coded_nodes)
 
-AA = np.full( (num_nodes, num_nodes), fill_value=0, dtype=np.int8)
+AA = np.full( (num_nodes, num_nodes), fill_value=0, dtype=np.int8) # change for 2x3
 
 for n1 in range(num_nodes):
     for n2 in range(num_nodes):
@@ -94,17 +80,11 @@ for n1 in range(num_nodes):
             AA[n2,n1] = 1
 
 embedding = spectral_embedding(AA, n_components=3, random_state=42)
-# emb_df = pd.DataFrame(
-#     {
-#     'x': [pt[0] for pt in embedding]/la.norm([pt[0] for pt in embedding]), 
-#     'y': [pt[1] for pt in embedding]/la.norm([pt[1] for pt in embedding]),
-#     'z': [pt[2] for pt in embedding]/la.norm([pt[2] for pt in embedding])
-#     }
-#     )
+
 
 point_pairs = list([])
-for i in range(len(embedding)):
-    for j in range(len(embedding)):
+for i in range(len(embedding)): # change for 2x3
+    for j in range(len(embedding)): # change for 2x3
         if AA[i,j]==1:
             point_pairs.append([embedding[i], embedding[j]])
 
