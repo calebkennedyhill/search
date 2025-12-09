@@ -1,20 +1,33 @@
 \section{Basics}
 
 Let $G = (V,E)$ be a graph with $V=\{1,\dots,n\}$.
-Define $\unit$ to be the $n\times1$ matrix (i.e., column vector) with $1$ in every slot.
-Let $A$ be the adjacency matrix of $G$.
+That is, $E \subseteq V\times V$ is such that if $(i,j)\in E$ then $(j,i)\in E$.
+We will assume $G$ has no {\bf self-loops}, i.e., edges of the form $(i,i)$.
+We call $j$ a {\bf neighbor} of $i$ if $(i,j) \in E$.
+The {\bf adjacency matrix} of $G$ is the matrix $A=A_G \in M_{n}(\N)$
+given by 
+\[
+    A_{i,j} = \begin{cases}
+        1 & \text{if $(i,j)\in E$} \\
+        0 & \text{else}
+    \end{cases}.
+\] 
+
 
 \begin{proposition}
-    $D_{i,i}$ is the number of neighbors of $i$. 
+    Define $\unit$ to be the $n\times1$ matrix (i.e., column vector) with $1$ in every slot;
+    define $D=D_G\coloneq A\unit$.
+    Then $D_{i,i}$ is the number of neighbors of $i$. 
 \end{proposition}
 \begin{proof}
-    
+    \blue{Exercise.}
 \end{proof}
 
-\begin{definition}
-    $L\coloneq D-A$
+\begin{definition}[Laplacian]
+    We define the {\bf graph Laplacian} of $G$ to be the matrix $L=L_G\coloneq D-A$.
 \end{definition}
 
+The following proposition summarizes the entries of $L$.
 \begin{proposition}
     $L_{i,j} = \begin{cases}
         D_{i,i} & i=j \\
@@ -23,8 +36,51 @@ Let $A$ be the adjacency matrix of $G$.
     \end{cases}$
 \end{proposition}
 \begin{proof}
-    
+    \blue{Exercise.}
 \end{proof}
+
+Since we defined the set $V$ of nodes to be the set $\{1,\dots,n\}$, we may consider 
+a real-valued vector $v\in\R^n$ to be an assignment of real numbers to the nodes of $G$;
+i.e., a vector $v$ may be seen as a function on $G$.
+
+This begs the question of the action of $L$ on such a vector (i.e., function) $v\in\R^n$.
+The answer is given by the following lemma.
+
+\begin{lemma}
+    Let $v\in\R^n$, and define $w\coloneq Lv$.
+    Then
+    \[
+        w_i = \sum_{\substack{j:\\ (i,j)\in E}} (v_i-v_j).
+    \]
+\end{lemma}
+\begin{proof}
+    \blue{Exercise.}
+\end{proof}
+
+So for each $i$, $w_i$ measures the net difference between $v_i$ and its neighbors.
+We turn this local information into global measure of ``how constant $v$ is''
+by multiplying $L$ by $v$ on both sides.
+
+\begin{proposition}
+    For $v\in\R^n$, the quantity $v'Lv$ is the sum of squares of differences between 
+    neighboring nodes' $v$-values.\footnote{Here $v'$ denotes the usual transpose of $v$.}
+    That is,
+    \[
+        v'Lv = \sum_{\substack{(i,j)\in E\\ i<j}} (v_i-v_j)^2.
+    \]
+\end{proposition}
+\begin{proof}
+    \blue{Exercise.
+    
+    Hint: to get at the $i<j$ condition, remember that you only 
+    want to count each edge {\bf once}!
+    }
+\end{proof}
+
+
+
+
+
 
 
 
