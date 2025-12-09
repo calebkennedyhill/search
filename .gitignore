@@ -2,6 +2,7 @@
 .idea/
 local_old_files/
 *.csv
+!benchmarks_korf_100.csv
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
