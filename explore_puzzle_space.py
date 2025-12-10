@@ -1,3 +1,5 @@
+#TODO: update this code with the new puzzle utilities
+
 # idea: BFS explore the whole space and recreate the histograms for # of states with a given norm
 
 # to get some benchmarks: after getting all states, choose some states outside a certain (taxi)^2 + (inv)^2 ellipse as benchmarks
@@ -19,7 +21,7 @@ SIDE = int(sys.argv[1])
 LIMIT = int(sys.argv[2])
 HOME = (np.arange(SIDE**2)+1)%(SIDE**2) # change for 2x3
 
-solved_state = util.puzzle_state(HOME)
+solved_state = util.PuzzleState(HOME)
 
 
 def explore_and_record():
@@ -37,11 +39,11 @@ def explore_and_record():
         # print(here.config)
         frontier = np.delete(frontier,0)
 
-        flattened_here = here.config.reshape(SIDE**2,) # change for 2x3
+        flattened_here = here.sol_state.reshape(SIDE ** 2, ) # change for 2x3
 
         nbrs = util.moves(here)
         for n in nbrs:
-            nbr_pairs.add( (int(lehmer.encode(here.config.flatten())), int(lehmer.encode(n.config.flatten()))) )
+            nbr_pairs.add((int(lehmer.encode(here.sol_state.flatten())), int(lehmer.encode(n.sol_state.flatten()))))
             if n not in discovered:
                 discovered.add(n)
                 frontier = np.append(frontier, n)

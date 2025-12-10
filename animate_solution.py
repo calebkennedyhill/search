@@ -1,9 +1,6 @@
 import puzzle_utilities as util
 import numpy as np
-
-# chatGPT output for visualizing:
 import tkinter as tk
-import time
 
 TILE_SIZE = 80  # pixels
 ANIM_STEPS = 10  # frames for sliding
@@ -13,7 +10,7 @@ TILE_SIZE = 80
 
 def draw_puzzle(canvas, state):
     canvas.delete("all")
-    arr = state.config
+    arr = state.puzzle_state
     rows, cols = arr.shape
     for r in range(rows):
         for c in range(cols):
@@ -29,7 +26,7 @@ def run_viewer(states):
     root = tk.Tk()
     root.title("15 Puzzle Viewer")
 
-    rows, cols = states[0].config.shape
+    rows, cols = states[0].init_state.shape
     canvas = tk.Canvas(root, width=cols*TILE_SIZE, height=rows*TILE_SIZE, bg="white")
     canvas.pack()
 
@@ -60,6 +57,7 @@ def run_viewer(states):
 
 # chatGPT output end
 if __name__ == "__main__":
+    # TODO: update this code with the new puzzle utilities
     import random
 
     # Configuration for the demo
@@ -71,7 +69,7 @@ if __name__ == "__main__":
     home_config = (np.arange(SIDE ** 2) + 1) % (SIDE ** 2)
 
     try:
-        solved_state = util.puzzle_state(home_config)
+        solved_state = util.PuzzleState(home_config)
     except Exception as e:
         print(f"Error initializing puzzle state: {e}")
         exit(1)
