@@ -125,6 +125,7 @@ if __name__ == '__main__':
     NUM_RUNS = args.num_runs
     NUM_ELEMS = args.num_elements
     metrics_path = args.dir
+    #TODO: need to make sure num_elemnts % args.stride = 0 for example 8 and stride 3 should fail
     my_puzzle = PuzzleState(num_elements=NUM_ELEMS, row_stride=args.stride)
 
     print('\n***********************************************************************************************************************')

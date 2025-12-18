@@ -79,13 +79,15 @@ class PuzzleState:
     
 # find the neighbors of a puzzle_state
 def moves(par_state: PuzzleState):
-    side_len = par_state.puzzle_state.shape[0]
+    side_len_i = par_state.puzzle_state.shape[0]
+    side_len_j = par_state.puzzle_state.shape[1] #TODO: so what is the side length with a 2 x 3? I think we need for i another
+    # for j
     a = par_state.puzzle_state
-    i = np.argwhere(a == 0)[0][0]
-    j = np.argwhere(a == 0)[0][1]
+    i = np.argwhere(a == 0)[0][0] # row
+    j = np.argwhere(a == 0)[0][1] # column
 
     # center
-    if (i!=0 and i!=side_len-1) and (j!=0 and j!=side_len-1):
+    if (i!=0 and i!=side_len_i-1) and (j!=0 and j!=side_len_j-1):
         u = par_state.copy()
         d = par_state.copy()
         l = par_state.copy()
@@ -135,7 +137,7 @@ def moves(par_state: PuzzleState):
         r.d = par_state.d + 1
         d.d = par_state.d + 1
         return [r,d]
-    elif i==0 and j==side_len-1:
+    elif i==0 and j==side_len_j-1:
         d = par_state.copy()
         l = par_state.copy()
         key = d.puzzle_state[i + 1,j]
@@ -152,7 +154,7 @@ def moves(par_state: PuzzleState):
         l.d = par_state.d + 1
         d.d = par_state.d + 1
         return [l,d]
-    elif i==side_len-1 and j==0:
+    elif i==side_len_i-1 and j==0:
         u = par_state.copy()
         r = par_state.copy()
         key = u.puzzle_state[i - 1,j]
@@ -169,7 +171,7 @@ def moves(par_state: PuzzleState):
         u.d = par_state.d + 1
         r.d = par_state.d + 1
         return [u,r]
-    elif i==side_len-1 and j==side_len-1:
+    elif i==side_len_i-1 and j==side_len_j-1:
         u = par_state.copy()
         l = par_state.copy()
         key = u.puzzle_state[i - 1,j]
@@ -188,7 +190,7 @@ def moves(par_state: PuzzleState):
         return [u,l]
 
     # non-corner edges
-    elif i==0 and(j!=0 and j!=side_len-1):
+    elif i==0 and(j!=0 and j!=side_len_j-1):
         d = par_state.copy()
         l = par_state.copy()
         r = par_state.copy()
@@ -210,7 +212,7 @@ def moves(par_state: PuzzleState):
         r.d = par_state.d + 1
         d.d = par_state.d + 1
         return [l,r,d]
-    elif i==side_len-1 and(j!=0 and j!=side_len-1):
+    elif i==side_len_i-1 and(j!=0 and j!=side_len_j-1):
         u = par_state.copy()
         l = par_state.copy()
         r = par_state.copy()
@@ -232,7 +234,7 @@ def moves(par_state: PuzzleState):
         r.d = par_state.d + 1
         u.d = par_state.d + 1
         return [l,r,u]
-    elif (i!=0 and i!=side_len-1) and j==0:
+    elif (i!=0 and i!=side_len_i-1) and j==0:
         u = par_state.copy()
         d = par_state.copy()
         r = par_state.copy()
@@ -254,7 +256,7 @@ def moves(par_state: PuzzleState):
         d.d = par_state.d + 1
         r.d = par_state.d + 1
         return [u,d,r]
-    elif (i!=0 and i!=side_len-1) and j==side_len-1:
+    elif (i!=0 and i!=side_len_i-1) and j==side_len_j-1:
         u = par_state.copy()
         d = par_state.copy()
         l = par_state.copy()
@@ -287,21 +289,27 @@ def is_found(found_list: list, to_check: PuzzleState):
 def manhattan_total(arr):
     # Double check if works for nonsquare
     sum = 0
-    side = arr.shape[0]
-    for i in range(side):
-        for j in range(side):
+    side_len_i = arr.shape[0]
+    side_len_j = arr.shape[1]
+    for i in range(side_len_i):
+        for j in range(side_len_j):
             val = arr[i, j]
             if val != 0:
-                sum = sum + np.abs( int((val-1)/side) - i) + np.abs( ((val-1)%side) - j)
+                sum = sum + np.abs( int((val-1)/side_len_i) - i) + np.abs( ((val-1)%side_len_j) - j)
     return sum
 
 def horz_inv(arr):
+    #TODO: clean this up
+    side_len_i = arr.shape[0]
+    side_len_j = arr.shape[1]
+    num_elem = side_len_i*side_len_j
+    flat = arr.flatten()
     sum = 0
-    side = arr.shape[0]
-    flat = arr.copy()
-    flat = arr.reshape(side**2,)
-    for i in range(side**2-1):
-        for j in range(i+1,side**2):
+    # side = arr.shape[0]
+    # flat = arr.copy()
+    # flat = arr.reshape(side**2,)
+    for i in range(num_elem-1):
+        for j in range(i+1,num_elem):
             if (flat[i]>flat[j]) and (flat[j]!=0):
                 sum = sum + 1
     return sum
