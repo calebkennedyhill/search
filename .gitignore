@@ -41,3 +41,9 @@ MANIFEST
 *.xml
 *.gz
 *.fdb_latexmk
+The Fifteen Puzzle- A New Approach through Hybridizing Three Heuristics Methods.pdf
+simpler_bounded_suboptimal_search-ruml.pdf
+.vscode/settings.json
+.DS_Store
+test_solver.py
+cayley_graph_spectrum.pdf

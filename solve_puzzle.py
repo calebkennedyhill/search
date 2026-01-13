@@ -270,7 +270,7 @@ def find_sol(init_state: util.puzzle_state,upper_limit: int):
         # put nbrs in qew
         nbrs = moves(here)
         for n in nbrs:
-            if not is_found(found_states, n):
+            if not is_found(found_states, n):       # BOTTLENECK ALERT. Should be using a hash map
                 qew = np.append(qew, n)
 
         qew = sorted(qew, key=heur)
