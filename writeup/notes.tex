@@ -1,0 +1,40 @@
+\section*{Meeting notes}
+
+
+\subsection*{1/13/2026}
+We agreed the following tasks should be done: (not ranked)
+\begin{itemize}
+    \item Change the \verb|PuzzleState| class around, maybe splitting it into
+        two different classes. E.g., \verb|Puzzle| and \verb|State|
+    \item Rewrite \verb|explore_puzzle_space.py| to match 
+        \verb|w_a-star_variants.py| with use of classes, arg parsing, etc.
+    \item Add some information about search algorithms to the writeup.
+        For instance, why does A* need a \verb|.d| attribute?
+\end{itemize}
+
+
+\subsubsection*{Classes}
+The following class structures might work
+
+\begin{minipage}{.45\textwidth}
+        \begin{center}
+        \begin{tabular}{c|c}
+            \verb|Puzzle| & \\
+            Att/method & Functionality \\ \hline\hline
+            \verb|.current_state| & A \verb|State| class: now \\
+            \verb|.sol_state| & A \verb|State| class: goal \\
+            \verb|.is_solved()| & Checks \verb|State| class \\
+            \verb|.d| & Measures distance from parent \\
+        \end{tabular}
+        \end{center}
+    \end{minipage}%
+    \begin{minipage}{0.45\textwidth}
+        \begin{center}
+        \begin{tabular}{c|c}
+            \verb|State| & \\
+            Att/method & Functionality \\ \hline\hline
+            \verb|.config| & A 2-d array of integers \\
+            \verb|.linear()| & Returns a copied 1-d array of integers \\
+        \end{tabular}
+        \end{center}
+    \end{minipage}
