@@ -1,4 +1,130 @@
-\section{Basics}
+\section{Search}
+
+I have at least two questions:
+\begin{enumerate}
+    \item How does the fact that nodes have 2, 3, or 4 neighbors manifest in the adjacency matrix?
+    \item Can we exploit this structure to parallelize exploration?
+\end{enumerate}
+
+But first, some prerequisites.
+
+
+\subsection{Graphs}
+For our purposes, graphs will have no self-loops and no parallel edges.
+
+\begin{definition}
+    An {\bf undirected graph} is a pair $G = (V,E)$ where $V$ is a finite set of {\bf nodes} or {\bf vertices}, 
+    and $E$ is a subset of $V\times V$ of {\bf edges} such that 
+    \begin{enumerate}
+        \item If $(u,v)\in E$, then $(v,u)\in E$,
+        \item For every $v\in V$, it is the case that $(v,v)\not\in E$.
+    \end{enumerate}
+    For $u,v\in V$, a {\bf path of length $k$} from $u$ to $v$ is a $(k+1)$-tuple
+    $(w_0, w_1, \dots, w_k)$ with $w_i\in V$, and $(w_i,w_{i+1})\in E$ for $i=0,\dots,k$.
+    We call $G$ {\bf connected} if for every $u,v\in V$, there is a path from $u$ to $v$.
+\end{definition}
+In practice since $V$ is finite, we usually denote its elements, without loss of generality,
+by $1,\dots, n=|V|$.
+Dropping condition (1) gives a {\bf directed} graph, and dropping condition (2) gives 
+a graph with {\bf self-loops}.
+
+Many discrete structures with relationships between the constituent parts 
+can be represented as graphs.
+For example:
+\begin{itemize}
+    \item Pixels or collections of pixels in image processing \cite{jeremy_cancer}
+    \item Objects in fusion categories related multiplicatively \cite{chill_q_subgroups}
+\end{itemize}
+
+In practice, one is often not presented with a graph $G=(V,E)$ as such.
+One might, for example, be given $V$ and a function 
+\[
+    f(u,v) \coloneq \begin{cases}
+        1 & \text{if $(u,v)\in E$} \\
+        0 & \text{if $(u,v)\not\in E$}
+    \end{cases}
+\]
+along with an algorithm to compute values of $f$.
+Two of the most common problems involving graphs are
+\begin{enumerate}
+    \item
+        Exploration: Given a collection $V=\{1,\dots,n\}$ of vertices and an algorithm 
+        for computing $f$, find all pairs $(u,v)\in E$.
+    \item 
+        Pathfinding: Given a graph $G=(V,E)$ and two nodes $u,v\in V$, find a path from $u$ to $v$.
+    \item
+        Optimal pathfinding: Given a graph $G=(V,E)$ and two nodes $u,v\in V$, find a path of length $k$ 
+        from $u$ to $v$ such that every path from $u$ to $v$ has length at least $k$.
+\end{enumerate}
+
+There are many algorithms to solve these problems.
+One algorithm to solve the first is {\it breadth-first search} or BFS.
+An algorithm that solves the second is {\it heuristic search}.
+An algorithm to solve the third is {\it A*}.
+We'll briefly touch on these three algorithms.
+Henceforth, fix a connected graph $G=(V,E)$, where $|V|=n$.
+
+
+\subsubsection{BFS}
+The idea of BFS is fairly straightforward.
+For now we will assume we have a modified version of the function $f$ above.
+Suppose that we have an algorithm to compute the function $N$ which is defined by 
+\[
+    N(v) = \{u\in V \mid (u,v)\in E \}.
+\]
+Suppose you begin at a vertex $1$, knowing nothing about $E$; suppose you would like to visit every 
+vertex in $V$.
+......
+
+
+
+
+
+\subsection{Structure of the graph}
+
+The first goal here is to write down the adjacency matrix for the 100 
+or so nodes surrounding the $3\times3$ solved state. 
+This is to start addressing question (1) above.
+See \verb|explore_puzzle_space.py| for progress.
+
+We'll be considering, e.g., a $3\times3$ puzzle configuration as a permutation of the 
+set 
+\[
+    \{1,2,3,4,5,6,7,8,0\}.
+\]  
+There are some particularities about where 0 goes in the null/solved permutation,
+but that shouldn't be too important now.
+Permutations will be denoted by $\sigma$.
+
+Let $\sigma_0,\dots,\sigma_{99}$ be the configurations of the 100 nodes surrounding the solved state.
+Let $\lambda(\sigma)$ denote the \hyperlink{https://en.wikipedia.org/wiki/Lehmer_code}{Lehmer encoding}
+of the permutation $\sigma$.
+So $\lambda(\sigma) \in \{ 0,\dots,99\}$.
+Let $i_0,\dots,i_{99}$ be such that $\lambda(\sigma_{i_0}) < \cdots < \lambda(\sigma_{i_{99}})$,
+and define $f$ by $f(\lambda(\sigma_{i_k})) \coloneq k$.
+
+Now, whenever a new node $n$ is discovered from parent $p$, keep track of number $\lambda(n.\sigma)$
+as well as the pair 
+\[
+    (\lambda(n.\sigma), \lambda(p.\sigma)).
+\]
+
+The size of the set $\{ n.\sigma \}$ will tell us how big to make the adjacency matrix,
+and the pairs $(\lambda(n.\sigma), \lambda(p.\sigma))$ will tell us which entries are nonzero.
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Graph Spectral Theory}
 
 Let $G = (V,E)$ be a graph with $V=\{1,\dots,n\}$.
 That is, $E \subseteq V\times V$ is such that if $(i,j)\in E$ then $(j,i)\in E$.
@@ -85,47 +211,6 @@ by multiplying $L$ by $v$ on both sides.
 
 
 
-
-\section{Search}
-
-I have at least two questions:
-\begin{enumerate}
-    \item How does the fact that nodes have 2, 3, or 4 neighbors manifest in the adjacency matrix?
-    \item Can we exploit this structure to parallelize exploration?
-\end{enumerate}
-
-
-\subsection{Structure of the graph}
-
-The first goal here is to write down the adjacency matrix for the 100 
-or so nodes surrounding the $3\times3$ solved state. 
-This is to start addressing question (1) above.
-See \verb|explore_puzzle_space.py| for progress.
-
-We'll be considering, e.g., a $3\times3$ puzzle configuration as a permutation of the 
-set 
-\[
-    \{1,2,3,4,5,6,7,8,0\}.
-\]  
-There are some particularities about where 0 goes in the null/solved permutation,
-but that shouldn't be too important now.
-Permutations will be denoted by $\sigma$.
-
-Let $\sigma_0,\dots,\sigma_{99}$ be the configurations of the 100 nodes surrounding the solved state.
-Let $\lambda(\sigma)$ denote the \hyperlink{https://en.wikipedia.org/wiki/Lehmer_code}{Lehmer encoding}
-of the permutation $\sigma$.
-So $\lambda(\sigma) \in \{ 0,\dots,99\}$.
-Let $i_0,\dots,i_{99}$ be such that $\lambda(\sigma_{i_0}) < \cdots < \lambda(\sigma_{i_{99}})$,
-and define $f$ by $f(\lambda(\sigma_{i_k})) \coloneq k$.
-
-Now, whenever a new node $n$ is discovered from parent $p$, keep track of number $\lambda(n.\sigma)$
-as well as the pair 
-\[
-    (\lambda(n.\sigma), \lambda(p.\sigma)).
-\]
-
-The size of the set $\{ n.\sigma \}$ will tell us how big to make the adjacency matrix,
-and the pairs $(\lambda(n.\sigma), \lambda(p.\sigma))$ will tell us which entries are nonzero.
 
 
 
