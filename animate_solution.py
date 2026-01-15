@@ -10,7 +10,7 @@ TILE_SIZE = 80
 
 def draw_puzzle(canvas, state):
     canvas.delete("all")
-    arr = state.puzzle_state
+    arr = state.curr_state.config
     rows, cols = arr.shape
     for r in range(rows):
         for c in range(cols):
@@ -24,9 +24,9 @@ def draw_puzzle(canvas, state):
 
 def run_viewer(states):
     root = tk.Tk()
-    root.title("15 Puzzle Viewer")
+    root.title("Sliding Puzzle Viewer")
 
-    rows, cols = states[0].init_state.shape
+    rows, cols = states[0].curr_state.config.shape
     canvas = tk.Canvas(root, width=cols*TILE_SIZE, height=rows*TILE_SIZE, bg="white")
     canvas.pack()
 
@@ -56,45 +56,3 @@ def run_viewer(states):
     root.mainloop()
 
 # chatGPT output end
-if __name__ == "__main__":
-    # TODO: update this code with the new puzzle utilities
-    import random
-
-    # Configuration for the demo
-    SIDE = 4  # 4x4 puzzle (15-puzzle)
-    STEPS = 20  # Number of random steps to scramble
-
-    # Create the solved state: [1, 2, ... 15, 0]
-    # puzzle_utilities is imported as util
-    home_config = (np.arange(SIDE ** 2) + 1) % (SIDE ** 2)
-
-    try:
-        solved_state = util.PuzzleState(home_config)
-    except Exception as e:
-        print(f"Error initializing puzzle state: {e}")
-        exit(1)
-
-    print(f"Generating a random walk of {STEPS} steps...")
-
-    # Generate a path by walking randomly from the solved state
-    # We will record these states to animate them later
-    path = [solved_state]
-    current_state = solved_state
-
-    for _ in range(STEPS):
-        # Get valid moves (neighbors)
-        neighbors = util.moves(current_state)
-        if not neighbors:
-            break
-
-        # Pick a random next state
-        next_state = random.choice(neighbors)
-        path.append(next_state)
-        current_state = next_state
-
-    # To show the puzzle being "solved", we reverse the scramble path
-    # (Start at scrambled state -> ... -> Solved state)
-    solution_path = list(reversed(path))
-
-    print("Starting animation...")
-    run_animation(solution_path)
