@@ -47,3 +47,4 @@ simpler_bounded_suboptimal_search-ruml.pdf
 .DS_Store
 test_solver.py
 cayley_graph_spectrum.pdf
+test.py
