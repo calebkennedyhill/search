@@ -6,25 +6,33 @@
 # eccentricity of the ellipse could be mean/sd of norm distribution or something
 
 import numpy as np
+import puzzle_utilities as util
+from puzzle_utilities import Node
 from numpy import linalg as la
-import matplotlib.pyplot as plt
 import pandas as pd
 import datetime
-import sys
 
+from matplotlib import pyplot as plt
 from sklearn.manifold import spectral_embedding
-
-import puzzle_utilities as util
 import lehmer
 
-SIDE = int(sys.argv[1])
-LIMIT = int(sys.argv[2])
-HOME = (np.arange(SIDE**2)+1)%(SIDE**2) # change for 2x3
 
-solved_state = util.PuzzleState(HOME)
+#               CUT
+# SIDE = int(sys.argv[1])
+# LIMIT = int(sys.argv[2])
+# HOME = (np.arange(SIDE**2)+1)%(SIDE**2) # change for 2x3
+
+# solved_state = util.PuzzleState(HOME)
+#               CUT
 
 
-def explore_and_record():
+def explore_and_record_nbrs(upper_limit: int):
+
+    def make_home():
+        return ( (1+np.arange(HEIGHT*WIDTH)) % (HEIGHT*WIDTH)).reshape(HEIGHT,WIDTH) 
+
+    solved_state = Node(height=HEIGHT, width=WIDTH, arr=make_home())
+
     frontier = [solved_state]
     discovered = set()
     discovered.add(solved_state)
@@ -34,31 +42,17 @@ def explore_and_record():
     nbr_pairs = set()
 
     print('starting exploration...')
-    while len(frontier) != 0 and num_states_explored < LIMIT:
-        here = frontier[0]
-        # print(here.config)
-        frontier = np.delete(frontier,0)
-
-        flattened_here = here.sol_state.reshape(SIDE ** 2, ) # change for 2x3
+    while len(frontier) != 0 and num_states_explored < upper_limit:
+        here, frontier = frontier[0], frontier[1:]
 
         nbrs = util.moves(here)
         for n in nbrs:
-            nbr_pairs.add((int(lehmer.encode(here.sol_state.flatten())), int(lehmer.encode(n.sol_state.flatten()))))
+            nbr_pairs.add(
+                (int(lehmer.encode(here.curr_state.linear())), int(lehmer.encode(n.curr_state.linear())))
+                )
             if n not in discovered:
                 discovered.add(n)
                 frontier = np.append(frontier, n)
-                
-
-        # state_data.append([
-        #     num_states_explored, 
-        #     la.norm( HOME - flattened_here ,0), 
-        #     la.norm( HOME - flattened_here ,1), 
-        #     round(la.norm( HOME - flattened_here ,2),3), 
-        #     util.manhattan_total(here.config), 
-        #     util.inversion_dist(here.config),
-        #     ''.join(np.array2string(flattened_here,edgeitems=2)[1:-1].split()),
-        #     lehmer.encode(flattened_here)
-        #     ])
 
         num_states_explored = num_states_explored + 1
         if num_states_explored%100 == 0:
@@ -79,8 +73,20 @@ def explore_and_record():
 
 if __name__ == "__main__":
 
+    # python explore_puzzle_space.py --h 2 --w 3 --maxnode 1000
+    #to create debug config just edit the config for this script to inlcude the arguments (copy the above --)
+    import argparse
+    parser = argparse.ArgumentParser(description='Weighted A* variants for puzzle solving')
+    parser.add_argument('--h', type=int, help='size of puzzle: height')
+    parser.add_argument('--w', type=int, help='size of puzzle: width')
+    parser.add_argument('--maxnode', type=int, help='max number of nodes to search')
+    args = parser.parse_args()
 
-    coded_nbr_pairs = explore_and_record()
+    MAXNODE = args.maxnode
+    HEIGHT = args.h
+    WIDTH = args.w
+
+    coded_nbr_pairs = explore_and_record_nbrs(upper_limit=MAXNODE)
     coded_nodes = list(set([elt for tpl in coded_nbr_pairs for elt in tpl]))
     num_nodes = len(coded_nodes)
 
