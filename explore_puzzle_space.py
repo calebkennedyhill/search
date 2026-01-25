@@ -90,7 +90,7 @@ if __name__ == "__main__":
     coded_nodes = list(set([elt for tpl in coded_nbr_pairs for elt in tpl]))
     num_nodes = len(coded_nodes)
 
-    AA = np.full( (num_nodes, num_nodes), fill_value=0, dtype=np.int8) # change for 2x3
+    AA = np.full( (num_nodes, num_nodes), fill_value=0, dtype=np.int8)
 
     for n1 in range(num_nodes):
         for n2 in range(num_nodes):
@@ -99,31 +99,23 @@ if __name__ == "__main__":
                 AA[n2,n1] = 1
 
     embedding = spectral_embedding(AA, n_components=3, random_state=42)
+    rows, cols = np.where(AA == 1)
+    point_pairs = [(embedding[i], embedding[j]) for i, j in zip(rows,cols)]
 
-
-    point_pairs = list([])
-    for i in range(len(embedding)): # change for 2x3
-        for j in range(len(embedding)): # change for 2x3
-            if AA[i,j]==1:
-                point_pairs.append([embedding[i], embedding[j]])
-
-
-    x_starts = [pr[0][0] for pr in point_pairs]
-    y_starts = [pr[0][1] for pr in point_pairs]
-    z_starts = [pr[0][2] for pr in point_pairs]
-
-    x_ends = [pr[1][0] for pr in point_pairs]
-    y_ends = [pr[1][1] for pr in point_pairs]
-    z_ends = [pr[1][2] for pr in point_pairs]
+    xs, ys, zs = [], [], []
+    for p, q in point_pairs:
+        xs += [p[0], q[0], np.nan]
+        ys += [p[1], q[1], np.nan]
+        zs += [p[2], q[2], np.nan]
 
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
+    ax.plot(xs,ys,zs)
 
-    for i in range(len(point_pairs)):
-        ax.plot( 
-            [x_starts[i],x_ends[i]], 
-            [y_starts[i],y_ends[i]], 
-            [z_starts[i],z_ends[i]] 
-        )
+    ax.scatter([pt[0] for pt in embedding], 
+               [pt[1] for pt in embedding], 
+               [pt[2] for pt in embedding], 
+               s=10, color="black")
+    ax.set_axis_off()
 
     plt.show()
