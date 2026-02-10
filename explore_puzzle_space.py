@@ -77,9 +77,9 @@ if __name__ == "__main__":
     #to create debug config just edit the config for this script to inlcude the arguments (copy the above --)
     import argparse
     parser = argparse.ArgumentParser(description='Weighted A* variants for puzzle solving')
-    parser.add_argument('--h', type=int, help='size of puzzle: height')
-    parser.add_argument('--w', type=int, help='size of puzzle: width')
-    parser.add_argument('--maxnode', type=int, help='max number of nodes to search')
+    parser.add_argument('--h', type=int, default=2, help='size of puzzle: height')
+    parser.add_argument('--w', type=int, default=2, help='size of puzzle: width')
+    parser.add_argument('--maxnode', type=int, default=1000, help='max number of nodes to search')
     args = parser.parse_args()
 
     MAXNODE = args.maxnode
@@ -90,32 +90,54 @@ if __name__ == "__main__":
     coded_nodes = list(set([elt for tpl in coded_nbr_pairs for elt in tpl]))
     num_nodes = len(coded_nodes)
 
+    print('Initializing adjacency matrix...')
     AA = np.full( (num_nodes, num_nodes), fill_value=0, dtype=np.int8)
 
+    print('Writing adjacency matrix...')
     for n1 in range(num_nodes):
         for n2 in range(num_nodes):
             if ((coded_nodes[n1],coded_nodes[n2]) in coded_nbr_pairs) or ((coded_nodes[n2],coded_nodes[n1]) in coded_nbr_pairs):
                 AA[n1,n2] = 1
                 AA[n2,n1] = 1
 
+    print('Computing spectral embedding...')
     embedding = spectral_embedding(AA, n_components=3, random_state=42)
     rows, cols = np.where(AA == 1)
     point_pairs = [(embedding[i], embedding[j]) for i, j in zip(rows,cols)]
 
-    xs, ys, zs = [], [], []
+    import plotly.graph_objects as go
+
+    print('Creating plot...')
+    fig = go.Figure()
+
+    # edges
     for p, q in point_pairs:
-        xs += [p[0], q[0], np.nan]
-        ys += [p[1], q[1], np.nan]
-        zs += [p[2], q[2], np.nan]
+        fig.add_trace(go.Scatter3d(
+            x=[p[0], q[0]],
+            y=[p[1], q[1]],
+            z=[p[2], q[2]],
+            mode="lines",
+            line=dict(color="black",width=2),
+            showlegend=False
+        ))
 
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    ax.plot(xs,ys,zs)
+    # nodes
+    fig.add_trace(go.Scatter3d(
+        x=[p[0] for p in embedding],
+        y=[p[1] for p in embedding],
+        z=[p[2] for p in embedding],
+        mode="markers",
+        marker=dict(size=4)
+    ))
 
-    ax.scatter([pt[0] for pt in embedding], 
-               [pt[1] for pt in embedding], 
-               [pt[2] for pt in embedding], 
-               s=10, color="black")
-    ax.set_axis_off()
+    fig.update_layout(
+    scene=dict(
+        xaxis=dict(visible=False),
+        yaxis=dict(visible=False),
+        zaxis=dict(visible=False),
+        bgcolor="rgba(0,0,0,0)",
+        )
+    )
 
-    plt.show()
+
+    fig.show()
