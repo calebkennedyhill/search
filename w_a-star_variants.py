@@ -101,7 +101,7 @@ def find_sol_and_write_metrics(
 
 
 if __name__ == '__main__':
-    # python w_a-star_variants.py -- 2 --maxnode 1000 --num_runs 1 --dir "./variants"
+    # python w_a-star_variants.py --h 2 --w 2 --maxnode 1000 --num_runs 1 --dir "./variants"
     #to create debug config just edit the config for this script to inlcude the arguments (copy the above --)
     import argparse
     parser = argparse.ArgumentParser(description='Weighted A* variants for puzzle solving')
