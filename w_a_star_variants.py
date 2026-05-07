@@ -31,6 +31,12 @@ def find_sol_and_write_metrics(
         here, qew = qew[0], qew[1:]
         # qew = np.delete(qew,0)
 
+        if here.is_solved():
+            end_time = datetime.datetime.now()
+            sol_found = True
+            end = here
+            break
+
         # put nbrs in qew
         nbrs = util.moves(here)
         # print(len(nbrs))
@@ -56,8 +62,8 @@ def find_sol_and_write_metrics(
                 'experiment_start_time': start_time.strftime('%H:%M:%S'),
                 'w_1': w1,
                 'w_2': w2,
-                'height': HEIGHT,
-                'width': WIDTH,
+                'height': my_ps.height,
+                'width': my_ps.width,
                 'initial_state': ''.join(np.array2string(my_ps.curr_state.linear(),edgeitems=2)[1:-1].split()),
                 'initial_0_norm': int(la.norm( my_ps.sol_state.linear() - my_ps.curr_state.linear(), 0 )),
                 'initial_taxi_norm': util.manhattan_total(my_ps.curr_state.config),
@@ -67,16 +73,10 @@ def find_sol_and_write_metrics(
                 'runtime': end_time-start_time
                 }
                 df = pd.DataFrame([metrics])
-                df.to_csv(path+'_'+str(HEIGHT)+'by'+str(WIDTH)+'.csv', index=False, mode='a', header=False)
+                df.to_csv(path+'_'+str(my_ps.height)+'by'+str(my_ps.width)+'.csv', index=False, mode='a', header=False)
             return 1
 
-        if here.is_solved():
-            end_time = datetime.datetime.now()
-            sol_found = True
-            end = here
-        
     print('Solution found after', num_states_explored, 'states explored.')
-
     print('Solution length:', end.d,'\n')
 
     if write:
@@ -84,8 +84,8 @@ def find_sol_and_write_metrics(
                 'experiment_start_time': start_time.strftime('%H:%M:%S'),
                 'w_1': w1,
                 'w_2': w2,
-                'height': HEIGHT,
-                'width': WIDTH,
+                'height': my_ps.height,
+                'width': my_ps.width,
                 'initial_state': ''.join(np.array2string(my_ps.curr_state.linear(),edgeitems=2)[1:-1].split()),
                 'initial_0_norm': int(la.norm( my_ps.sol_state.linear() - my_ps.curr_state.linear(), 0 )),
                 'initial_taxi_norm': util.manhattan_total(my_ps.curr_state.config),
@@ -95,13 +95,13 @@ def find_sol_and_write_metrics(
                 'runtime': end_time-start_time
                 }
         df = pd.DataFrame([metrics])
-        df.to_csv(path+'_'+str(HEIGHT)+'by'+str(WIDTH)+'.csv', index=False, mode='a', header=True)
+        df.to_csv(path+'_'+str(my_ps.height)+'by'+str(my_ps.width)+'.csv', index=False, mode='a', header=True)
 
     return [sol_found, end, num_states_explored, get_path(end)]
 
 
 if __name__ == '__main__':
-    # python w_a-star_variants.py --h 2 --w 2 --maxnode 1000 --num_runs 1 --dir "./variants"
+    # python w_a_star_variants.py --h 2 --w 2 --maxnode 1000 --num_runs 1 --dir "./variants"
     #to create debug config just edit the config for this script to inlcude the arguments (copy the above --)
     import argparse
     parser = argparse.ArgumentParser(description='Weighted A* variants for puzzle solving')
